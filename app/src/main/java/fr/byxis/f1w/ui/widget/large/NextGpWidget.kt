@@ -31,6 +31,10 @@ class NextGpWidget : GlanceAppWidget() {
         var raceDate = "--/--"
         var raceCountry = "F1"
         var sessionName = "Prochain événement"
+        var eventStartTime = 0L
+        var eventEndTime = 0L
+        var eventStatus = fr.byxis.f1w.data.model.EventStatus.NORMAL
+        var countdownText = "--/--" // Pre-calculated countdown text
     }
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -64,6 +68,14 @@ fun WidgetContent() {
         "Grand Prix de ${NextGpWidget.raceName}"
     }
     
+    // Calculate emoji based on event status
+    val emojiPrefix = when (NextGpWidget.eventStatus) {
+        fr.byxis.f1w.data.model.EventStatus.SOON -> "⚠️ "
+        fr.byxis.f1w.data.model.EventStatus.IN_PROGRESS -> "🟢 "
+        fr.byxis.f1w.data.model.EventStatus.FINISHED -> "🚩 "
+        else -> ""
+    }
+    
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -84,7 +96,7 @@ fun WidgetContent() {
 
 
         Text(
-            text = NextGpWidget.sessionName.uppercase(),
+            text = "$emojiPrefix${NextGpWidget.sessionName.uppercase()}",
             style = TextStyle(
                 color = GlanceTheme.colors.onSurface,
                 fontSize = 16.sp,
@@ -99,6 +111,7 @@ fun WidgetContent() {
 
         Spacer(modifier = GlanceModifier.height(8.dp))
 
+        // Display countdown text (Glance doesn't support real-time updates)
         Box(
             modifier = GlanceModifier
                 .background(GlanceTheme.colors.primaryContainer)
@@ -106,7 +119,7 @@ fun WidgetContent() {
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
             Text(
-                text = NextGpWidget.raceDate,
+                text = NextGpWidget.countdownText,
                 style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer)
             )
         }

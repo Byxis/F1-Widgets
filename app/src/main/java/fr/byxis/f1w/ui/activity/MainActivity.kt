@@ -210,8 +210,26 @@ fun AppDashboard(onOpenSettings: () -> Unit, onOpenWidgetList: () -> Unit) {
                         NextGpWidget.raceCountry = newData.raceCountry
                         NextGpWidget.sessionName = newData.sessionName
                         NextGpWidget.raceDate = newData.raceDate
+                        NextGpWidget.eventStartTime = newData.eventStartTime
+                        NextGpWidget.eventEndTime = newData.eventEndTime
+                        NextGpWidget.eventStatus = newData.eventStatus
+                        
+                        // Calculate countdown text
+                        val currentTime = System.currentTimeMillis()
+                        NextGpWidget.countdownText = when (newData.eventStatus) {
+                            fr.byxis.f1w.data.model.EventStatus.SOON -> {
+                                val timeUntilStart = newData.eventStartTime - currentTime
+                                val minutes = (timeUntilStart / 60000).toInt()
+                                val seconds = ((timeUntilStart % 60000) / 1000).toInt()
+                                if (minutes > 0) "Dans ${minutes}min ${seconds}s" else "Dans ${seconds}s"
+                            }
+                            fr.byxis.f1w.data.model.EventStatus.IN_PROGRESS -> "En cours"
+                            fr.byxis.f1w.data.model.EventStatus.FINISHED -> "Terminé"
+                            else -> newData.raceDate
+                        }
                         
                         NextGpWidget().updateAll(context)
+                        fr.byxis.f1w.ui.widget.small.MiniGpWidget().updateAll(context)
                         
                         DebugLogger.log("✅ Données rafraîchies avec succès")
                         Toast.makeText(context, "Données mises à jour !", Toast.LENGTH_SHORT).show()
@@ -291,6 +309,7 @@ fun TeamSelectionScreen(onBack: () -> Unit) {
                         userPrefs.saveTeam(team)
                         Toast.makeText(context, "${team.teamName} sauvegardé", Toast.LENGTH_SHORT).show()
                         NextGpWidget().updateAll(context)
+                        fr.byxis.f1w.ui.widget.small.MiniGpWidget().updateAll(context)
                         
                         onBack()
                     }

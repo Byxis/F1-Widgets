@@ -41,6 +41,23 @@ class NextGpWidgetReceiver : GlanceAppWidgetReceiver() {
             NextGpWidget.raceCountry = data.raceCountry
             NextGpWidget.sessionName = data.sessionName
             NextGpWidget.raceDate = data.raceDate
+            NextGpWidget.eventStartTime = data.eventStartTime
+            NextGpWidget.eventEndTime = data.eventEndTime
+            NextGpWidget.eventStatus = data.eventStatus
+            
+            // Calculate initial countdown text
+            val currentTime = System.currentTimeMillis()
+            NextGpWidget.countdownText = when (data.eventStatus) {
+                fr.byxis.f1w.data.model.EventStatus.SOON -> {
+                    val timeUntilStart = data.eventStartTime - currentTime
+                    val minutes = (timeUntilStart / 60000).toInt()
+                    val seconds = ((timeUntilStart % 60000) / 1000).toInt()
+                    if (minutes > 0) "Dans ${minutes}min ${seconds}s" else "Dans ${seconds}s"
+                }
+                fr.byxis.f1w.data.model.EventStatus.IN_PROGRESS -> "En cours"
+                fr.byxis.f1w.data.model.EventStatus.FINISHED -> "Terminé"
+                else -> data.raceDate
+            }
 
             NextGpWidget().updateAll(context)
         }
@@ -51,6 +68,9 @@ class NextGpWidgetReceiver : GlanceAppWidgetReceiver() {
         NextGpWidget.raceCountry = data.raceCountry
         NextGpWidget.sessionName = data.sessionName
         NextGpWidget.raceDate = data.raceDate
+        NextGpWidget.eventStartTime = data.eventStartTime
+        NextGpWidget.eventEndTime = data.eventEndTime
+        NextGpWidget.eventStatus = data.eventStatus
         NextGpWidget().updateAll(context)
     }
 }

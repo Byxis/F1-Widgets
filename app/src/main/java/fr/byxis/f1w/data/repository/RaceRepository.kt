@@ -41,11 +41,27 @@ object RaceRepository {
                     nextSession.session_name
                 }
 
+                // Calculate event status based on current time
+                val startTimeMillis = startInstant.toEpochMilli()
+                val endTimeMillis = endInstant.toEpochMilli()
+                val currentTimeMillis = System.currentTimeMillis()
+                val thirtyMinutesInMillis = 30 * 60 * 1000L
+
+                val eventStatus = when {
+                    currentTimeMillis >= endTimeMillis -> fr.byxis.f1w.data.model.EventStatus.FINISHED
+                    currentTimeMillis >= startTimeMillis -> fr.byxis.f1w.data.model.EventStatus.IN_PROGRESS
+                    currentTimeMillis >= (startTimeMillis - thirtyMinutesInMillis) -> fr.byxis.f1w.data.model.EventStatus.SOON
+                    else -> fr.byxis.f1w.data.model.EventStatus.NORMAL
+                }
+
                 val newData = WidgetData(
                     raceName = nextSession.location,
                     raceCountry = nextSession.country_name,
                     sessionName = sessionDisplayName,
                     raceDate = fullDateString,
+                    eventStartTime = startTimeMillis,
+                    eventEndTime = endTimeMillis,
+                    eventStatus = eventStatus,
                     lastUpdate = System.currentTimeMillis()
                 )
 
