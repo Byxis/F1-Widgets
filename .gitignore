@@ -14,11 +14,19 @@ captures/
 .cxx/
 *.aab
 *.apk
+*.ap_
+*.dex
 output-metadata.json
 
-# IntelliJ
+# IntelliJ IDEA
 *.iml
 .idea/
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
@@ -32,3 +40,14 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Built application files
+bin/
+gen/
+out/
+
+# Navigation files
+.navigation/
+
+# OS-specific files
+.DS_Store
