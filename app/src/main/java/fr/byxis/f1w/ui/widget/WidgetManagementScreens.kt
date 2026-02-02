@@ -15,11 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.appwidget.updateAll
 import fr.byxis.f1w.data.local.UserPreferences
 import fr.byxis.f1w.data.model.EF1Team
+import fr.byxis.f1w.data.model.WidgetThemeMode
 import fr.byxis.f1w.ui.widget.large.NextGpWidget
 import fr.byxis.f1w.ui.widget.large.NextGpWidgetReceiver
 import kotlinx.coroutines.launch
@@ -68,7 +70,7 @@ fun WidgetListScreen(onBack: () -> Unit, onConfigureWidget: (Int) -> Unit) {
                     "Aucun widget placé\n\nAjoutez un widget F1 sur votre écran d'accueil",
                     color = Color.Gray,
                     fontSize = 16.sp,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = TextAlign.Center
                 )
             }
         } else {
@@ -109,8 +111,8 @@ fun WidgetCard(widgetName: String, widgetId: Int, onConfigure: () -> Unit) {
     val context = LocalContext.current
     val userPrefs = remember { UserPreferences(context) }
     
-    var themeMode by remember { mutableStateOf(fr.byxis.f1w.data.model.WidgetThemeMode.DARK) }
-    var transparency by remember { mutableStateOf(0f) }
+    var themeMode by remember { mutableStateOf(WidgetThemeMode.DARK) }
+    var transparency by remember { mutableFloatStateOf(0f) }
     
     LaunchedEffect(widgetId) {
         themeMode = userPrefs.getSavedThemeMode(widgetId)
@@ -138,7 +140,7 @@ fun WidgetCard(widgetName: String, widgetId: Int, onConfigure: () -> Unit) {
                     fontSize = 12.sp
                 )
                 Text(
-                    "Thème: ${if (themeMode == fr.byxis.f1w.data.model.WidgetThemeMode.LIGHT) "Clair" else "Sombre"} • ${(transparency * 100).toInt()}% transparent",
+                    "Thème: ${if (themeMode == WidgetThemeMode.LIGHT) "Clair" else "Sombre"} • ${(transparency * 100).toInt()}% transparent",
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -160,8 +162,8 @@ fun WidgetConfigScreen(widgetId: Int, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val userPrefs = remember { UserPreferences(context) }
 
-    var selectedThemeMode by remember { mutableStateOf(fr.byxis.f1w.data.model.WidgetThemeMode.DARK) }
-    var transparency by remember { mutableStateOf(0f) }
+    var selectedThemeMode by remember { mutableStateOf(WidgetThemeMode.DARK) }
+    var transparency by remember { mutableFloatStateOf(0f) }
     var favoriteTeam by remember { mutableStateOf(EF1Team.FERRARI) }
 
     LaunchedEffect(widgetId) {
@@ -188,13 +190,13 @@ fun WidgetConfigScreen(widgetId: Int, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
 
         val previewBackgroundColor = when (selectedThemeMode) {
-            fr.byxis.f1w.data.model.WidgetThemeMode.LIGHT -> Color.White.copy(alpha = 1f - transparency)
-            fr.byxis.f1w.data.model.WidgetThemeMode.DARK -> Color(0xFF1E1E1E).copy(alpha = 1f - transparency)
+            WidgetThemeMode.LIGHT -> Color.White.copy(alpha = 1f - transparency)
+            WidgetThemeMode.DARK -> Color(0xFF1E1E1E).copy(alpha = 1f - transparency)
         }
 
         val previewTextColor = when (selectedThemeMode) {
-            fr.byxis.f1w.data.model.WidgetThemeMode.LIGHT -> Color.Black
-            fr.byxis.f1w.data.model.WidgetThemeMode.DARK -> Color.White
+            WidgetThemeMode.LIGHT -> Color.Black
+            WidgetThemeMode.DARK -> Color.White
         }
 
         Card(
@@ -242,24 +244,24 @@ fun WidgetConfigScreen(widgetId: Int, onBack: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Button(
-                onClick = { selectedThemeMode = fr.byxis.f1w.data.model.WidgetThemeMode.LIGHT },
+                onClick = { selectedThemeMode = WidgetThemeMode.LIGHT },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedThemeMode == fr.byxis.f1w.data.model.WidgetThemeMode.LIGHT)
+                    containerColor = if (selectedThemeMode == WidgetThemeMode.LIGHT)
                         Color.White else Color(0xFF333333)
                 ),
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
                     "☀️ CLAIR",
-                    color = if (selectedThemeMode == fr.byxis.f1w.data.model.WidgetThemeMode.LIGHT)
+                    color = if (selectedThemeMode == WidgetThemeMode.LIGHT)
                         Color.Black else Color.White
                 )
             }
 
             Button(
-                onClick = { selectedThemeMode = fr.byxis.f1w.data.model.WidgetThemeMode.DARK },
+                onClick = { selectedThemeMode = WidgetThemeMode.DARK },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedThemeMode == fr.byxis.f1w.data.model.WidgetThemeMode.DARK)
+                    containerColor = if (selectedThemeMode == WidgetThemeMode.DARK)
                         Color(0xFF1E1E1E) else Color(0xFF333333)
                 ),
                 modifier = Modifier.weight(1f)

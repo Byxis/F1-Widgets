@@ -43,8 +43,7 @@ class MiniGpWidgetReceiver : GlanceAppWidgetReceiver() {
             NextGpWidget.eventStartTime = data.eventStartTime
             NextGpWidget.eventEndTime = data.eventEndTime
             NextGpWidget.eventStatus = data.eventStatus
-            
-            // Calculate initial countdown text
+
             val currentTime = System.currentTimeMillis()
             NextGpWidget.countdownText = when (data.eventStatus) {
                 fr.byxis.f1w.data.model.EventStatus.SOON -> {

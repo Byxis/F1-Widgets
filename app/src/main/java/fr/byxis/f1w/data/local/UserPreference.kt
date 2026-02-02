@@ -32,7 +32,7 @@ class UserPreferences(private val context: Context) {
 
         return try {
             EF1Team.valueOf(teamName)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             EF1Team.DEFAULT
         }
     }
@@ -49,7 +49,7 @@ class UserPreferences(private val context: Context) {
 
         return try {
             WidgetThemeMode.valueOf(modeName)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             WidgetThemeMode.DARK
         }
     }

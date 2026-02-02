@@ -6,12 +6,12 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 data class OpenF1Session(
-    val session_key: Int,
-    val session_name: String,
-    val session_type: String,
-    val date_start: String,
-    val date_end: String,
-    val country_name: String,
+    val sessionKey: Int,
+    val sessionName: String,
+    val sessionType: String,
+    val dateStart: String,
+    val dateEnd: String,
+    val countryName: String,
     val location: String
 )
 

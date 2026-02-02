@@ -1,19 +1,39 @@
 package fr.byxis.f1w.ui.activity
 
-import android.appwidget.AppWidgetManager
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,19 +43,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.appwidget.updateAll
-import fr.byxis.f1w.ui.widget.large.NextGpWidget
-import fr.byxis.f1w.ui.widget.large.NextGpWidgetReceiver
-import fr.byxis.f1w.ui.widget.WidgetListScreen
-import fr.byxis.f1w.ui.widget.WidgetConfigScreen
+import fr.byxis.f1w.data.local.RaceStorage
 import fr.byxis.f1w.data.local.UserPreferences
+import fr.byxis.f1w.data.local.WidgetData
 import fr.byxis.f1w.data.model.EF1Team
+import fr.byxis.f1w.data.repository.RaceRepository
+import fr.byxis.f1w.ui.widget.WidgetConfigScreen
+import fr.byxis.f1w.ui.widget.WidgetListScreen
+import fr.byxis.f1w.ui.widget.large.NextGpWidget
+import fr.byxis.f1w.ui.widget.small.MiniGpWidget
 import fr.byxis.f1w.utils.DebugLogger
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        DebugLogger.log("📱 Application ouverte")
         setContent {
             MainNavigation()
         }
@@ -46,7 +68,7 @@ class MainActivity : ComponentActivity() {
 fun MainNavigation() {
     var currentScreen by remember { mutableStateOf<Screen>(Screen.Dashboard) }
 
-    androidx.activity.compose.BackHandler(enabled = currentScreen !is Screen.Dashboard) {
+    BackHandler(enabled = currentScreen !is Screen.Dashboard) {
         currentScreen = when (currentScreen) {
             Screen.TeamSelection -> Screen.Dashboard
             Screen.WidgetList -> Screen.Dashboard
@@ -85,11 +107,11 @@ sealed class Screen {
 fun AppDashboard(onOpenSettings: () -> Unit, onOpenWidgetList: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val userPrefs = remember { fr.byxis.f1w.data.local.UserPreferences(context) }
+    val userPrefs = remember { UserPreferences(context) }
     
     var widgetData by remember { 
         mutableStateOf(
-            fr.byxis.f1w.data.local.RaceStorage.load(context) ?: fr.byxis.f1w.data.local.WidgetData(
+            RaceStorage.load(context) ?: WidgetData(
                 raceName = "Chargement...",
                 raceCountry = "F1",
                 sessionName = "Prochain événement",
@@ -203,7 +225,7 @@ fun AppDashboard(onOpenSettings: () -> Unit, onOpenWidgetList: () -> Unit) {
                     DebugLogger.log("🔄 Début du rafraîchissement des données...")
                     
                     try {
-                        val newData = fr.byxis.f1w.data.repository.RaceRepository.getNextRaceData(context)
+                        val newData = RaceRepository.getNextRaceData(context)
                         widgetData = newData
                         
                         NextGpWidget.raceName = newData.raceName
@@ -213,8 +235,7 @@ fun AppDashboard(onOpenSettings: () -> Unit, onOpenWidgetList: () -> Unit) {
                         NextGpWidget.eventStartTime = newData.eventStartTime
                         NextGpWidget.eventEndTime = newData.eventEndTime
                         NextGpWidget.eventStatus = newData.eventStatus
-                        
-                        // Calculate countdown text
+
                         val currentTime = System.currentTimeMillis()
                         NextGpWidget.countdownText = when (newData.eventStatus) {
                             fr.byxis.f1w.data.model.EventStatus.SOON -> {
@@ -229,7 +250,7 @@ fun AppDashboard(onOpenSettings: () -> Unit, onOpenWidgetList: () -> Unit) {
                         }
                         
                         NextGpWidget().updateAll(context)
-                        fr.byxis.f1w.ui.widget.small.MiniGpWidget().updateAll(context)
+                        MiniGpWidget().updateAll(context)
                         
                         DebugLogger.log("✅ Données rafraîchies avec succès")
                         Toast.makeText(context, "Données mises à jour !", Toast.LENGTH_SHORT).show()
@@ -267,7 +288,7 @@ fun AppDashboard(onOpenSettings: () -> Unit, onOpenWidgetList: () -> Unit) {
                         fontFamily = FontFamily.Monospace,
                         modifier = Modifier.padding(vertical = 2.dp)
                     )
-                    Divider(color = Color.DarkGray, thickness = 0.5.dp)
+                    HorizontalDivider(color = Color.DarkGray, thickness = 0.5.dp)
                 }
             }
         }
@@ -288,7 +309,6 @@ fun TeamSelectionScreen(onBack: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // Header avec bouton Retour
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -309,7 +329,7 @@ fun TeamSelectionScreen(onBack: () -> Unit) {
                         userPrefs.saveTeam(team)
                         Toast.makeText(context, "${team.teamName} sauvegardé", Toast.LENGTH_SHORT).show()
                         NextGpWidget().updateAll(context)
-                        fr.byxis.f1w.ui.widget.small.MiniGpWidget().updateAll(context)
+                        MiniGpWidget().updateAll(context)
                         
                         onBack()
                     }

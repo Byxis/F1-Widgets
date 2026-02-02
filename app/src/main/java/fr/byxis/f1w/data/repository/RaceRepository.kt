@@ -19,12 +19,12 @@ object RaceRepository {
             val sessions = NetworkClient.api.getSessionsByYear(currentYear)
 
             val nextSession = sessions
-                .filter { Instant.parse(it.date_start).isAfter(now) }
-                .minByOrNull { Instant.parse(it.date_start) }
+                .filter { Instant.parse(it.dateStart).isAfter(now) }
+                .minByOrNull { Instant.parse(it.dateStart) }
 
             if (nextSession != null) {
-                val startInstant = Instant.parse(nextSession.date_start)
-                val endInstant = Instant.parse(nextSession.date_end)
+                val startInstant = Instant.parse(nextSession.dateStart)
+                val endInstant = Instant.parse(nextSession.dateEnd)
                 val zoneId = ZoneId.systemDefault()
 
                 val localStartTime = LocalDateTime.ofInstant(startInstant, zoneId)
@@ -35,13 +35,12 @@ object RaceRepository {
 
                 val fullDateString = "${localStartTime.format(dayFormatter)} • ${localStartTime.format(timeFormatter)} - ${localEndTime.format(timeFormatter)}"
 
-                val sessionDisplayName = if (nextSession.session_name.contains("Day")) {
-                    "Test Hivernal - ${nextSession.session_name}"
+                val sessionDisplayName = if (nextSession.sessionName.contains("Day") && !nextSession.sessionName.contains("Test Hivernal")) {
+                    "Test Hivernal - ${nextSession.sessionName}"
                 } else {
-                    nextSession.session_name
+                    nextSession.sessionName
                 }
 
-                // Calculate event status based on current time
                 val startTimeMillis = startInstant.toEpochMilli()
                 val endTimeMillis = endInstant.toEpochMilli()
                 val currentTimeMillis = System.currentTimeMillis()
@@ -56,7 +55,7 @@ object RaceRepository {
 
                 val newData = WidgetData(
                     raceName = nextSession.location,
-                    raceCountry = nextSession.country_name,
+                    raceCountry = nextSession.countryName,
                     sessionName = sessionDisplayName,
                     raceDate = fullDateString,
                     eventStartTime = startTimeMillis,

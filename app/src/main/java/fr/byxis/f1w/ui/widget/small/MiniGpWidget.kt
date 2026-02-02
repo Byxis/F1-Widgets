@@ -45,8 +45,7 @@ class MiniGpWidget : GlanceAppWidget() {
 
 @Composable
 fun MiniWidgetContent() {
-    // Calculate emoji based on event status
-    val emojiPrefix = when (NextGpWidget.Companion.eventStatus) {
+    val emojiPrefix = when (NextGpWidget.eventStatus) {
         fr.byxis.f1w.data.model.EventStatus.SOON -> "⚠️ "
         fr.byxis.f1w.data.model.EventStatus.IN_PROGRESS -> "🟢 "
         fr.byxis.f1w.data.model.EventStatus.FINISHED -> "🚩 "
@@ -60,9 +59,8 @@ fun MiniWidgetContent() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Display countdown text (Glance doesn't support real-time updates)
         Text(
-            text = NextGpWidget.Companion.countdownText,
+            text = NextGpWidget.countdownText,
             style = TextStyle(
                 color = GlanceTheme.colors.primary,
                 fontSize = 11.sp,
@@ -73,7 +71,7 @@ fun MiniWidgetContent() {
         Spacer(modifier = GlanceModifier.height(2.dp))
 
         Text(
-            text = "$emojiPrefix${NextGpWidget.Companion.sessionName.uppercase()}",
+            text = "$emojiPrefix${NextGpWidget.sessionName.uppercase()}",
             style = TextStyle(
                 color = GlanceTheme.colors.onSurface,
                 fontSize = 13.sp,
@@ -83,7 +81,7 @@ fun MiniWidgetContent() {
         )
 
         Text(
-            text = NextGpWidget.Companion.raceCountry,
+            text = NextGpWidget.raceCountry,
             style = TextStyle(
                 color = GlanceTheme.colors.secondary,
                 fontSize = 9.sp

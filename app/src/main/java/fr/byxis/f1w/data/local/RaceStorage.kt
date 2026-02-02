@@ -2,7 +2,6 @@ package fr.byxis.f1w.data.local
 
 import android.content.Context
 import com.google.gson.Gson
-import fr.byxis.f1w.data.local.WidgetData
 import java.io.File
 
 object RaceStorage {
@@ -25,7 +24,7 @@ object RaceStorage {
             if (!file.exists()) return null
             val json = file.readText()
             gson.fromJson(json, WidgetData::class.java)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
